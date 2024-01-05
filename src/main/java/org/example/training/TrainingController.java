@@ -1,5 +1,6 @@
 package org.example.training;
 
+import io.swagger.annotations.ApiOperation;
 import org.example.trainee.Trainee;
 import org.example.trainee.TraineeService;
 import org.example.traineeTrainers.TraineeTrainerService;
@@ -36,6 +37,7 @@ public class TrainingController {
 
 	@Autowired
 	TraineeTrainerService trainerTraineeService;
+	@ApiOperation(value = "post training", response = ResponseEntity.class)
 
 	@PostMapping("/post")
 	public ResponseEntity post(@RequestParam String username, String password,

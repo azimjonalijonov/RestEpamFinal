@@ -1,5 +1,9 @@
 package org.example.trainee;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.example.trainee.dto.PostTraineeDTO;
 import org.example.trainee.dto.UpdateTraineeDTO;
 import org.example.traineeTrainers.TraineeTrainer;
@@ -28,6 +32,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Api(value = "TraineeController", tags = "Trainee API")
 @RestController
 @RequestMapping("/api/trainee")
 
@@ -45,6 +50,7 @@ public class TraineeController {
 	@Autowired
 	TraineeTrainerService trainerTraineeService;
 
+	@ApiOperation(value = "Create a new trainee", response = ResponseEntity.class)
 	@PostMapping("/post")
 	public ResponseEntity post(@RequestBody PostTraineeDTO traineeDTO) {
 
@@ -66,9 +72,10 @@ public class TraineeController {
 		return ResponseEntity.ok(response);
 	}
 
+	@ApiOperation(value = "Get trainee by username", response = ResponseEntity.class)
 	@GetMapping("/get")
 	public ResponseEntity get(@RequestParam String username, String password) {
-		if (userService.readByUserName(username) == null) {
+		if (userService.readByUserName(username) == null){
 			throw new RuntimeException("user does not exist");
 		}
 		User user = userService.readByUserName(username);
@@ -78,6 +85,7 @@ public class TraineeController {
 		String response = traineeService.readByUsername(username).toString();
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+	@ApiOperation(value = "update trainee", response = ResponseEntity.class)
 
 	@PutMapping("/update")
 	public ResponseEntity update(@RequestParam String username, String password,
@@ -116,6 +124,7 @@ public class TraineeController {
 		response = response + "trainers list: " + trainers;
 		return ResponseEntity.ok(response);
 	}
+	@ApiOperation(value = "delete trainee by username", response = ResponseEntity.class)
 
 	@DeleteMapping("/delete")
 	public ResponseEntity delete(@RequestParam String username, String password) {
@@ -129,6 +138,7 @@ public class TraineeController {
 		traineeService.deleteByUsername(username);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+	@ApiOperation(value = "update trainees trainer list", response = ResponseEntity.class)
 
 	@PutMapping("/updateTrainerList")
 	public ResponseEntity updateTrainerList(@RequestParam String username, String password,
@@ -153,7 +163,7 @@ public class TraineeController {
 		return ResponseEntity.ok(traineeTrainers);
 
 	}
-
+	@ApiOperation(value = "Get trainee's trainings'", response = ResponseEntity.class)
 	@GetMapping("/getTraineeTrainings")
 
 	public ResponseEntity getTraineeTrainings(@RequestParam String username, String password, LocalDate from,
@@ -170,6 +180,7 @@ public class TraineeController {
 
 		return ResponseEntity.ok(trainings);
 	}
+	@ApiOperation(value = "change trainees activation status", response = ResponseEntity.class)
 
 	@PatchMapping("/activateDeacivate")
 	public ResponseEntity changeStatus(@RequestParam String username, String password, Boolean bool) {

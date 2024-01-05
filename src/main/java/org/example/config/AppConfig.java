@@ -37,6 +37,10 @@ import org.springframework.web.servlet.config.annotation.ContentNegotiationConfi
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -45,9 +49,16 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true)
 // @EnableWebMvc
-@ComponentScan(basePackages = "org.example")
+//@ComponentScan(basePackages = "org.example")
 public class AppConfig {
-
+	@Bean
+	public Docket api() {
+		return new Docket(DocumentationType.OAS_30)
+				.select()
+				.apis(RequestHandlerSelectors.basePackage("org.example"))
+				.paths(PathSelectors.any())
+				.build();
+	}
 	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
 		configurer.enable();
 	}

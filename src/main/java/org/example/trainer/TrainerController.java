@@ -1,5 +1,6 @@
 package org.example.trainer;
 
+import io.swagger.annotations.ApiOperation;
 import org.example.trainee.Trainee;
 import org.example.trainee.TraineeService;
 import org.example.trainee.dto.PostTraineeDTO;
@@ -42,6 +43,7 @@ public class TrainerController {
 
 	@Autowired
 	TrainingTypeService trainingTypeService;
+	@ApiOperation(value = "Post Trainer", response = ResponseEntity.class)
 
 	@PostMapping("/post")
 	public ResponseEntity post(@RequestBody PostTrainerDTO postTrainerDTO) {
@@ -64,6 +66,8 @@ public class TrainerController {
 		return ResponseEntity.ok(response);
 
 	}
+	@ApiOperation(value = "get trainer by username", response = ResponseEntity.class)
+
 
 	@GetMapping("/get")
 	public ResponseEntity get(@RequestParam String username, String password) {
@@ -77,6 +81,8 @@ public class TrainerController {
 		String response = trainerService.readByUsername(username).toString();
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+	@ApiOperation(value = "update trainer", response = ResponseEntity.class)
+
 
 	@PutMapping("/update")
 	public ResponseEntity update(@RequestParam String username, String password,
@@ -102,6 +108,8 @@ public class TrainerController {
 		return ResponseEntity.ok(response);
 	}
 
+	@ApiOperation(value = "Get Trainer with no assignee but active account", response = ResponseEntity.class)
+
 	@GetMapping("/getspecial")
 	public ResponseEntity getSpecial(@RequestParam String username, String password) {
 		if (userService.readByUserName(username) == null) {
@@ -114,6 +122,8 @@ public class TrainerController {
 		List<Trainer> trainerList = trainerService.getSpecificTrainers();
 		return ResponseEntity.ok(trainerList);
 	}
+	@ApiOperation(value = "change trainers activation status", response = ResponseEntity.class)
+
 
 	@PatchMapping("/activateDeacivate")
 	public ResponseEntity changeStatus(@RequestParam String username, String password, Boolean bool) {
