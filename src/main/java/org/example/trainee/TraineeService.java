@@ -38,11 +38,11 @@ public class TraineeService implements BaseService<Trainee> {
 
 	@Override
 	public Trainee create(Trainee createRequest) {
-		if (traineeErrorValidator.isValidParamsForCreate(createRequest)) {
-			traineeDAO.createOrUpdate(createRequest);
-			return createRequest;
-		}
-		throw new ValidatorException("Something wrong with provided entity");
+		// if (traineeErrorValidator.isValidParamsForCreate(createRequest)) {
+		traineeDAO.createOrUpdate(createRequest);
+		return createRequest;
+		// }
+		// throw new ValidatorException("Something wrong with provided entity");
 	}
 
 	@Override

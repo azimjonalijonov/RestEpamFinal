@@ -47,7 +47,7 @@ public class UserDAO implements BaseDAO<User> {
 		entity.setUsername(generateUsername(entity.getFirstName(), entity.getLastName()));
 		entity.setPassword(generatePassword());
 
-		session.saveOrUpdate(entity);
+		session.save(entity);
 
 		return entity;
 

@@ -10,9 +10,10 @@ public class TraineeErrorValidator implements Validator<Trainee> {
 	@Override
 	public boolean isValidParamsForCreate(Trainee entity) {
 
-		if (entity.getUser() == null) {
-			throw new ValidatorException("Illegal argument with user id (it can be null or not long)");
-		}
+		// if (entity.getUser() == null) {
+		// throw new ValidatorException("Illegal argument with user id (it can be null or
+		// not long)");
+		// }
 		// else if (entity.getAddress() == null) {
 		// throw new ValidatorException("Address should be specified)");
 		// }

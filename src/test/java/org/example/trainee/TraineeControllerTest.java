@@ -1,87 +1,147 @@
 package org.example.trainee;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.example.trainee.dto.PostTraineeDTO;
+
+import org.example.trainee.dto.UpdateTraineeDTO;
 import org.example.traineeTrainers.TraineeTrainerService;
-import org.example.trainer.TrainerDAO;
 import org.example.trainer.TrainerService;
 import org.example.user.User;
-import org.example.user.UserDAO;
 import org.example.user.UserService;
-import org.example.util.validation.impl.TraineeErrorValidator;
-import org.example.util.validation.impl.TrainerErrorValidator;
-import org.example.util.validation.impl.UserErrorValidator;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.mockito.Mockito;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
 import static org.mockito.Mockito.when;
 
-class TraineeControllerTest {
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-    @Mock
-    private TraineeService traineeService;
+public class TraineeControllerTest {
 
-    @Mock
-    private UserService userService;
+	private final TraineeService traineeService = Mockito.mock(TraineeService.class);
 
-    @Mock
-    private TrainerService trainerService;
+	private final UserService userService = Mockito.mock(UserService.class);
 
-    @Mock
-    private TraineeTrainerService trainerTraineeService;
+	private final TrainerService trainerService = Mockito.mock(TrainerService.class);
 
-    @InjectMocks
-    private TraineeController traineeController;
-    private UserDAO userDAOMock;
+	private final TraineeTrainerService traineeTrainerService = Mockito.mock(TraineeTrainerService.class);
 
-    private UserErrorValidator userErrorValidatorMock;
+	private final TraineeController traineeController = new TraineeController(trainerService, userService,
+			traineeService, traineeTrainerService);
 
-    private TraineeDAO traineeDAOMock;
+	private final MockMvc mockMvc = MockMvcBuilders.standaloneSetup(traineeController).build();
 
-    private TraineeErrorValidator traineeErrorValidatorMock;
+	@Test
+	public void testPostTrainee() throws Exception {
+		PostTraineeDTO traineeDTO = new PostTraineeDTO();
+		traineeDTO.setFirstname("Azimjon");
+		traineeDTO.setLastname("Alijonov");
+		traineeDTO.setAddress("123 Main St");
+		// traineeDTO.setDob(LocalDate.now());
+		User user = new User();
+		user.setFirstName(traineeDTO.getFirstname());
+		user.setLastName(traineeDTO.getLastname());
+		Trainee trainee = new Trainee();
+		trainee.setUser(user);
+		trainee.setAddress(traineeDTO.getAddress());
+		// trainee.setDateOfBirth(traineeDTO.getDob());
+		when(userService.create(Mockito.any())).thenReturn(user);
+		when(traineeService.create(Mockito.any())).thenReturn(trainee);
+		//
+		ObjectMapper objectMapper = new ObjectMapper();
+		String requestBody = objectMapper.writeValueAsString(traineeDTO);
 
+		ResultActions result = mockMvc
+			.perform(post("/api/trainee/post").contentType(MediaType.APPLICATION_JSON).content(requestBody));
 
-    // Your other dependencies go here
-    @BeforeEach
-    void setUp() {
-        traineeDAOMock = mock(TraineeDAO.class);
-        traineeErrorValidatorMock = mock(TraineeErrorValidator.class);
-        traineeService = new TraineeService(traineeDAOMock, traineeErrorValidatorMock);
-        userDAOMock = mock(UserDAO.class);
-        userErrorValidatorMock = mock(UserErrorValidator.class);
-        userService = new UserService(userDAOMock, userErrorValidatorMock);
-        traineeController=new TraineeController();
-    }
-    @Test
-    void testPost() {
-         PostTraineeDTO postTraineeDTO = new PostTraineeDTO();
-        postTraineeDTO.setFirstname("John");
-        postTraineeDTO.setLastname("Doe");
-         when(userService.create(any(User.class))).thenReturn(new User());
-        when(traineeService.create(any(Trainee.class))).thenReturn(new Trainee());
+		result.andExpect(status().isOk());
+	}
 
-         ResponseEntity responseEntity = traineeController.post(postTraineeDTO);
+	@Test
+	public void testGetEndpoint() throws Exception {
+		String username = "Azimjon.Alijonov";
+		String password = "testPassword";
+		User mockedUser = new User();
+		mockedUser.setPassword(password);
+		mockedUser.setUsername(username);
+		when(userService.readByUserName(username)).thenReturn(mockedUser);
+		Trainee trainee = new Trainee();
+		trainee.setId(1l);
+		trainee.setUser(mockedUser);
 
-         assertEquals(ResponseEntity.ok().build(), responseEntity);
-    }
+		when(traineeService.readByUsername(username)).thenReturn(trainee);
 
-    @Test
-    void testGet() {
-         String username = "john.doe";
-        String password = "password";
-         when(userService.readByUserName(username)).thenReturn(new User());
-        when(traineeService.readByUsername(username)).thenReturn(new Trainee());
+		mockMvc
+			.perform(MockMvcRequestBuilders.get("/api/trainee/get")
+				.param("username", username)
+				.param("password", password)
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk());
+	}
 
-         ResponseEntity responseEntity = traineeController.get(username, password);
+	@Test
+	public void testUpdateTrainee() throws Exception {
+		String username = "Azimjon.Alijonov";
+		String password = "123";
 
-         assertEquals(ResponseEntity.ok().build(), responseEntity);
-    }
+		User user1 = new User();
+		user1.setId(1l);
+		user1.setUsername(username);
+		user1.setPassword(password);
 
+		UpdateTraineeDTO updateTraineeDTO = new UpdateTraineeDTO();
+		updateTraineeDTO.setActive(true);
+		updateTraineeDTO.setFirstname("UpdatedFirstName");
+		updateTraineeDTO.setLastname("UpdatedLastName");
+		updateTraineeDTO.setUsername("UpdatedUsername");
+		// updateTraineeDTO.setDob("2022-01-10");
+		updateTraineeDTO.setAddress("UpdatedAddress");
+
+		Trainee mockedTrainee = new Trainee();
+		mockedTrainee.setUser(user1);
+
+		when(userService.readByUserName(Mockito.any())).thenReturn(user1);
+		when(traineeService.readByUsername(Mockito.any())).thenReturn(mockedTrainee);
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		String requestBody = objectMapper.writeValueAsString(updateTraineeDTO);
+
+		ResultActions result = mockMvc.perform(put("/api/trainee/update").param("username", username)
+			.param("password", password)
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(requestBody));
+
+		result.andExpect(status().isOk());
+
+	}
+
+	@Test
+	public void testDeleteTrainee() throws Exception {
+		String username = "testUsername";
+		String password = "testPassword";
+
+		User mockedUser = new User();
+		mockedUser.setUsername(username);
+		mockedUser.setPassword(password);
+
+		when(userService.readByUserName(username)).thenReturn(mockedUser);
+		when(traineeService.deleteByUsername(username)).thenReturn(null);
+
+		ResultActions result = mockMvc.perform(delete("/api/trainee/delete").param("username", username)
+			.param("password", password)
+			.contentType(MediaType.APPLICATION_JSON));
+
+		result.andExpect(status().isOk());
+
+	}
 
 }

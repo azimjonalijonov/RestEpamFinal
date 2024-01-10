@@ -4,10 +4,12 @@ import org.example.user.User;
 import org.example.user.UserDAO;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,9 +69,7 @@ class TraineeDAOTest {
 	void deleteById() {
 		Trainee trainee = new Trainee();
 		when(session.get(eq(Trainee.class), anyLong())).thenReturn(trainee);
-
 		boolean result = traineeDAO.deleteById(1L);
-
 		assertTrue(result);
 		verify(session).remove(trainee);
 	}
@@ -78,6 +78,8 @@ class TraineeDAOTest {
 	void updatePassword() {
 		Trainee trainee = new Trainee();
 		trainee.setUser(new User());
+		traineeDAO.setUserDAO(userDAO);
+
 		when(session.get(eq(Trainee.class), anyLong())).thenReturn(trainee);
 
 		String result = traineeDAO.updatePassword("newPassword", 1L);
@@ -87,26 +89,40 @@ class TraineeDAOTest {
 	}
 
 	@Test
-	void changeActivation() {
-		Trainee trainee = new Trainee();
-		trainee.setUser(new User());
-		when(session.get(eq(Trainee.class), anyLong())).thenReturn(trainee);
+	void deleteByUsername() {
+		User user = new User();
+		user.setId(1L);
+		user.setUsername("Azimjon.Alijonov");
+		user.setLastName("Alijonov");
+		user.setFirstName("Azimjon");
 
-		String result = traineeDAO.changeActivation(true, 1L);
+		Trainee trainee = new Trainee();
+		trainee.setUser(user);
+		trainee.setId(1L);
+
+		when(userDAO.readByUsername(anyString())).thenReturn(user);
+		traineeDAO.setUserDAO(userDAO);
+
+		SessionFactory sessionFactory = Mockito.mock(SessionFactory.class);
+		Session session = Mockito.mock(Session.class);
+		Query<Trainee> query = Mockito.mock(Query.class);
+
+		when(sessionFactory.openSession()).thenReturn(session);
+
+		when(session.createQuery(anyString(), eq(Trainee.class))).thenReturn(query);
+
+		when(query.setParameter(anyString(), any())).thenReturn(query);
+
+		when(query.uniqueResult()).thenReturn(trainee);
+
+		String result = traineeDAO.deleteByUsername("Azimjon.Alijonov");
 
 		assertNotNull(result);
-		verify(userDAO).update(trainee.getUser());
+		verify(sessionFactory).openSession();
+		verify(session).createQuery(anyString(), eq(Trainee.class));
+		verify(query).setParameter(anyString(), any());
+		verify(query).uniqueResult();
+		verify(session).delete(trainee);
 	}
-
-	@Test
-    void deleteByUsername() {
-        when(userDAO.readByUsername(anyString())).thenReturn(new User());
-        when(session.createQuery(anyString(), eq(Trainee.class))).thenReturn(mock(org.hibernate.query.Query.class));
-
-        String result = traineeDAO.deleteByUsername("Azimjon.Alijonov");
-
-        assertNotNull(result);
-        verify(session).createQuery(anyString(), eq(Trainee.class));
-    }
 
 }

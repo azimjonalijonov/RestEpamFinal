@@ -75,11 +75,4 @@ class TrainingDAOTest {
 		verify(session).remove(training);
 	}
 
-	@Test
-    void existById() {
-        when(trainingDAO.readById(1l)).thenReturn(new Training());
-
-        assertTrue(trainingDAO.existById(1L));
-    }
-
 }

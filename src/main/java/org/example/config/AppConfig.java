@@ -49,16 +49,17 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true)
 // @EnableWebMvc
-//@ComponentScan(basePackages = "org.example")
+// @ComponentScan(basePackages = "org.example")
 public class AppConfig {
+
 	@Bean
 	public Docket api() {
-		return new Docket(DocumentationType.OAS_30)
-				.select()
-				.apis(RequestHandlerSelectors.basePackage("org.example"))
-				.paths(PathSelectors.any())
-				.build();
+		return new Docket(DocumentationType.OAS_30).select()
+			.apis(RequestHandlerSelectors.basePackage("org.example"))
+			.paths(PathSelectors.any())
+			.build();
 	}
+
 	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
 		configurer.enable();
 	}

@@ -2,8 +2,6 @@ package org.example.trainee;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.example.trainee.dto.PostTraineeDTO;
 import org.example.trainee.dto.UpdateTraineeDTO;
 import org.example.traineeTrainers.TraineeTrainer;
@@ -13,10 +11,8 @@ import org.example.trainer.TrainerService;
 import org.example.training.Training;
 import org.example.user.User;
 import org.example.user.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,17 +33,21 @@ import java.util.List;
 
 public class TraineeController {
 
-	@Autowired
-	TraineeService traineeService;
+	final TrainerService trainerService;
 
-	@Autowired
-	UserService userService;
+	private final UserService userService;
 
-	@Autowired
-	TrainerService trainerService;
+	final TraineeService traineeService;
 
-	@Autowired
-	TraineeTrainerService trainerTraineeService;
+	final TraineeTrainerService trainerTraineeService;
+
+	public TraineeController(TrainerService trainerService, UserService userService, TraineeService traineeService,
+			TraineeTrainerService trainerTraineeService) {
+		this.trainerService = trainerService;
+		this.userService = userService;
+		this.traineeService = traineeService;
+		this.trainerTraineeService = trainerTraineeService;
+	}
 
 	@ApiOperation(value = "Create a new trainee", response = ResponseEntity.class)
 	@PostMapping("/post")
@@ -75,7 +74,7 @@ public class TraineeController {
 	@ApiOperation(value = "Get trainee by username", response = ResponseEntity.class)
 	@GetMapping("/get")
 	public ResponseEntity get(@RequestParam String username, String password) {
-		if (userService.readByUserName(username) == null){
+		if (userService.readByUserName(username) == null) {
 			throw new RuntimeException("user does not exist");
 		}
 		User user = userService.readByUserName(username);
@@ -85,6 +84,7 @@ public class TraineeController {
 		String response = traineeService.readByUsername(username).toString();
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+
 	@ApiOperation(value = "update trainee", response = ResponseEntity.class)
 
 	@PutMapping("/update")
@@ -124,6 +124,7 @@ public class TraineeController {
 		response = response + "trainers list: " + trainers;
 		return ResponseEntity.ok(response);
 	}
+
 	@ApiOperation(value = "delete trainee by username", response = ResponseEntity.class)
 
 	@DeleteMapping("/delete")
@@ -138,6 +139,7 @@ public class TraineeController {
 		traineeService.deleteByUsername(username);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+
 	@ApiOperation(value = "update trainees trainer list", response = ResponseEntity.class)
 
 	@PutMapping("/updateTrainerList")
@@ -163,6 +165,7 @@ public class TraineeController {
 		return ResponseEntity.ok(traineeTrainers);
 
 	}
+
 	@ApiOperation(value = "Get trainee's trainings'", response = ResponseEntity.class)
 	@GetMapping("/getTraineeTrainings")
 
@@ -180,6 +183,7 @@ public class TraineeController {
 
 		return ResponseEntity.ok(trainings);
 	}
+
 	@ApiOperation(value = "change trainees activation status", response = ResponseEntity.class)
 
 	@PatchMapping("/activateDeacivate")

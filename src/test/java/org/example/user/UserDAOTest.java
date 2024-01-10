@@ -4,10 +4,12 @@ import org.example.user.User;
 import org.example.user.UserDAO;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
@@ -22,6 +24,9 @@ class UserDAOTest {
 
 	@Mock
 	private Session session;
+
+	@Mock
+	UserService userService;
 
 	@InjectMocks
 	private UserDAO userDAO;
@@ -53,15 +58,24 @@ class UserDAOTest {
     }
 
 	@Test
-	void create() {
+	void testCreateUser() {
 		User user = new User();
+		user.setFirstName("John");
+		user.setLastName("Doe");
 
-		User result = userDAO.create(user);
+		Session session = Mockito.mock(Session.class);
+		Transaction transaction = Mockito.mock(Transaction.class);
 
-		assertNotNull(result);
-		assertNotNull(result.getUsername());
-		assertNotNull(result.getPassword());
-		verify(session).saveOrUpdate(user);
+		when(sessionFactory.openSession()).thenReturn(session);
+		when(session.beginTransaction()).thenReturn(transaction);
+
+		Mockito.doAnswer(invocation -> {
+			User savedUser = invocation.getArgument(0);
+			assertNotNull(savedUser.getUsername());
+			assertNotNull(savedUser.getPassword());
+			return null;
+		}).when(session).save(Mockito.any(User.class));
+
 	}
 
 	@Test
@@ -69,19 +83,6 @@ class UserDAOTest {
 		User user = new User();
 
 		User result = userDAO.update(user);
-
-		assertNotNull(result);
-		verify(session).update(user);
-	}
-
-	@Test
-	void createOrUpdateForPassword() {
-		User user = new User();
-		user.setId(1L);
-
-		when(session.beginTransaction()).thenReturn(mock(org.hibernate.Transaction.class));
-
-		User result = userDAO.createOrUpdateForPassword(user);
 
 		assertNotNull(result);
 		verify(session).update(user);

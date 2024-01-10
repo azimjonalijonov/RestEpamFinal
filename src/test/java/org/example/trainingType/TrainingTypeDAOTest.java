@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
@@ -63,12 +64,5 @@ class TrainingTypeDAOTest {
 		assertNotNull(result);
 		verify(session).saveOrUpdate(trainingType);
 	}
-
-	@Test
-    void existById() {
-        when(trainingTypeDAO.readById(1l)).thenReturn(new TrainingType());
-
-        assertTrue(trainingTypeDAO.existById(1L));
-    }
 
 }

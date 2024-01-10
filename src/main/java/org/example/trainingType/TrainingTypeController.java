@@ -1,7 +1,6 @@
 package org.example.trainingType;
 
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,8 +12,12 @@ import java.util.List;
 @RequestMapping("trainingType")
 public class TrainingTypeController {
 
-	@Autowired
-	TrainingTypeService trainingTypeService;
+	final TrainingTypeService trainingTypeService;
+
+	public TrainingTypeController(TrainingTypeService trainingTypeService) {
+		this.trainingTypeService = trainingTypeService;
+	}
+
 	@ApiOperation(value = "get trainingtype", response = ResponseEntity.class)
 
 	@GetMapping("/get")

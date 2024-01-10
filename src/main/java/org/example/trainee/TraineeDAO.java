@@ -110,4 +110,8 @@ public class TraineeDAO implements BaseDAO<Trainee> {
 		return "trainee with username " + username + " is deleted";
 	}
 
+	public void setUserDAO(UserDAO userDAO) {
+		this.userDAO = userDAO;
+	}
+
 }

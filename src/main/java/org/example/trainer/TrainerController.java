@@ -3,16 +3,13 @@ package org.example.trainer;
 import io.swagger.annotations.ApiOperation;
 import org.example.trainee.Trainee;
 import org.example.trainee.TraineeService;
-import org.example.trainee.dto.PostTraineeDTO;
 import org.example.traineeTrainers.TraineeTrainer;
 import org.example.trainer.dto.PostTrainerDTO;
 import org.example.trainer.dto.UpdateTrainerDTO;
-import org.example.training.Training;
 import org.example.trainingType.TrainingType;
 import org.example.trainingType.TrainingTypeService;
 import org.example.user.User;
 import org.example.user.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +19,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -32,17 +28,22 @@ import java.util.List;
 @RequestMapping("/api/trainer")
 public class TrainerController {
 
-	@Autowired
-	TraineeService traineeService;
+	final TraineeService traineeService;
 
-	@Autowired
-	UserService userService;
+	final UserService userService;
 
-	@Autowired
-	TrainerService trainerService;
+	final TrainerService trainerService;
 
-	@Autowired
-	TrainingTypeService trainingTypeService;
+	final TrainingTypeService trainingTypeService;
+
+	public TrainerController(TraineeService traineeService, UserService userService, TrainerService trainerService,
+			TrainingTypeService trainingTypeService) {
+		this.traineeService = traineeService;
+		this.userService = userService;
+		this.trainerService = trainerService;
+		this.trainingTypeService = trainingTypeService;
+	}
+
 	@ApiOperation(value = "Post Trainer", response = ResponseEntity.class)
 
 	@PostMapping("/post")
@@ -66,8 +67,8 @@ public class TrainerController {
 		return ResponseEntity.ok(response);
 
 	}
-	@ApiOperation(value = "get trainer by username", response = ResponseEntity.class)
 
+	@ApiOperation(value = "get trainer by username", response = ResponseEntity.class)
 
 	@GetMapping("/get")
 	public ResponseEntity get(@RequestParam String username, String password) {
@@ -81,8 +82,8 @@ public class TrainerController {
 		String response = trainerService.readByUsername(username).toString();
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	@ApiOperation(value = "update trainer", response = ResponseEntity.class)
 
+	@ApiOperation(value = "update trainer", response = ResponseEntity.class)
 
 	@PutMapping("/update")
 	public ResponseEntity update(@RequestParam String username, String password,
@@ -122,9 +123,8 @@ public class TrainerController {
 		List<Trainer> trainerList = trainerService.getSpecificTrainers();
 		return ResponseEntity.ok(trainerList);
 	}
+
 	@ApiOperation(value = "change trainers activation status", response = ResponseEntity.class)
-
-
 	@PatchMapping("/activateDeacivate")
 	public ResponseEntity changeStatus(@RequestParam String username, String password, Boolean bool) {
 		if (userService.readByUserName(username) == null) {

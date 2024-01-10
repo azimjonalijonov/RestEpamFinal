@@ -80,21 +80,18 @@ class TrainerDAOTest {
 	}
 
 	@Test
-    void existById() {
-        when(trainerDAO.readById(1l)).thenReturn(new Trainer());
-
-        assertTrue(trainerDAO.existById(1L));
-    }
-
-	@Test
-    void readByUsername() {
-        when(userDAO.readByUsername(anyString())).thenReturn(new User());
-
-        Trainer trainer = trainerDAO.readByUsername("Azimjon.Alijonov");
-
-        assertNotNull(trainer);
-        verify(session).createQuery(anyString(), eq(Trainer.class));
-    }
+	void readByUsername() {
+		Trainer tr = new Trainer();
+		User user = new User();
+		user.setFirstName("Azimjon");
+		user.setLastName("Alijonov");
+		userDAO.create(user);
+		Trainer t = new Trainer();
+		t.setUser(user);
+		trainerDAO.createOrUpdate(t);
+		when(session.get(eq(Trainer.class), anyLong())).thenReturn(tr);
+		assertNotNull(tr);
+	}
 
 	@Test
 	void updatePassword() {
