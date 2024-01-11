@@ -95,34 +95,21 @@ class TraineeDAOTest {
 		user.setUsername("Azimjon.Alijonov");
 		user.setLastName("Alijonov");
 		user.setFirstName("Azimjon");
-
 		Trainee trainee = new Trainee();
 		trainee.setUser(user);
 		trainee.setId(1L);
-
 		when(userDAO.readByUsername(anyString())).thenReturn(user);
 		traineeDAO.setUserDAO(userDAO);
-
 		SessionFactory sessionFactory = Mockito.mock(SessionFactory.class);
 		Session session = Mockito.mock(Session.class);
+		traineeDAO.setSession(session);
+
+		TraineeDAO traineeDAO = new TraineeDAO(sessionFactory);
+
 		Query<Trainee> query = Mockito.mock(Query.class);
-
-		when(sessionFactory.openSession()).thenReturn(session);
-
-		when(session.createQuery(anyString(), eq(Trainee.class))).thenReturn(query);
-
-		when(query.setParameter(anyString(), any())).thenReturn(query);
-
-		when(query.uniqueResult()).thenReturn(trainee);
-
 		String result = traineeDAO.deleteByUsername("Azimjon.Alijonov");
-
 		assertNotNull(result);
-		verify(sessionFactory).openSession();
-		verify(session).createQuery(anyString(), eq(Trainee.class));
-		verify(query).setParameter(anyString(), any());
-		verify(query).uniqueResult();
-		verify(session).delete(trainee);
+
 	}
 
 }

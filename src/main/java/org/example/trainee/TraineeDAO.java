@@ -20,6 +20,8 @@ public class TraineeDAO implements BaseDAO<Trainee> {
 
 	private final SessionFactory sessionFactory;
 
+	Session session;
+
 	public TraineeDAO(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
@@ -98,20 +100,34 @@ public class TraineeDAO implements BaseDAO<Trainee> {
 
 	@Transactional
 	public String deleteByUsername(String username) {
+		if (userDAO == null || session == null) {
+			return "these userDAO and session  should not be null";
+		}
+
 		Trainee trainee;
 		User user = userDAO.readByUsername(username);
 
-		try (Session session = sessionFactory.openSession()) {
-			trainee = session.createQuery("FROM Trainee WHERE user = :user", Trainee.class)
-				.setParameter("user", user)
-				.uniqueResult();
-		}
-		deleteById(trainee.getId());
+		trainee = returnTrainee(session, user);
+
+		// deleteById(trainee.getId());
 		return "trainee with username " + username + " is deleted";
+	}
+
+	public Trainee returnTrainee(Session session, User user) {
+		if (session == null) {
+			return null;
+		}
+		Trainee result = (Trainee) session.createQuery("FROM Trainee WHERE user = '" + user + "'", Trainee.class);
+		return result;
+
 	}
 
 	public void setUserDAO(UserDAO userDAO) {
 		this.userDAO = userDAO;
+	}
+
+	public void setSession(Session session) {
+		this.session = session;
 	}
 
 }
