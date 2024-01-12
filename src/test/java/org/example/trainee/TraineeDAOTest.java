@@ -27,14 +27,14 @@ class TraineeDAOTest {
 	private Session session;
 
 	@Mock
-	private UserDAO userDAO =Mockito.mock(UserDAO.class);
+	private UserDAO userDAO = Mockito.mock(UserDAO.class);
 
 	@InjectMocks
 	private TraineeDAO traineeDAO;
 
 	@BeforeEach
 	void setUp() {
- 		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.initMocks(this);
 		when(sessionFactory.openSession()).thenReturn(session);
 	}
 
