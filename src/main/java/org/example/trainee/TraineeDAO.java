@@ -100,16 +100,18 @@ public class TraineeDAO implements BaseDAO<Trainee> {
 
 	@Transactional
 	public String deleteByUsername(String username) {
-		if (userDAO == null || session == null) {
-			return "these userDAO and session  should not be null";
-		}
 
 		Trainee trainee;
 		User user = userDAO.readByUsername(username);
+		try (Session session = sessionFactory.openSession()) {
+			trainee = (Trainee) session.createQuery("FROM Trainee WHERE user = '" + user + "'", Trainee.class)
+					.setParameter("user", user);
+			session.remove(trainee);
 
-		trainee = returnTrainee(session, user);
+		}
+//		trainee = returnTrainee(session, user);
+//		 deleteById(trainee.getId());
 
-		// deleteById(trainee.getId());
 		return "trainee with username " + username + " is deleted";
 	}
 

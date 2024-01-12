@@ -1,5 +1,6 @@
 package org.example.trainee;
 
+import org.example.trainer.Trainer;
 import org.example.user.User;
 import org.example.user.UserDAO;
 import org.hibernate.Session;
@@ -11,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import java.sql.PreparedStatement;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -24,14 +27,14 @@ class TraineeDAOTest {
 	private Session session;
 
 	@Mock
-	private UserDAO userDAO;
+	private UserDAO userDAO =Mockito.mock(UserDAO.class);
 
 	@InjectMocks
 	private TraineeDAO traineeDAO;
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
+ 		MockitoAnnotations.initMocks(this);
 		when(sessionFactory.openSession()).thenReturn(session);
 	}
 
@@ -99,14 +102,11 @@ class TraineeDAOTest {
 		trainee.setUser(user);
 		trainee.setId(1L);
 		when(userDAO.readByUsername(anyString())).thenReturn(user);
+		when(session.createQuery(anyString(), eq(Trainee.class))).thenReturn(mock(Query.class));
+		Query<Trainee> mockQuery = mock(Query.class);
+		when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
+
 		traineeDAO.setUserDAO(userDAO);
-		SessionFactory sessionFactory = Mockito.mock(SessionFactory.class);
-		Session session = Mockito.mock(Session.class);
-		traineeDAO.setSession(session);
-
-		TraineeDAO traineeDAO = new TraineeDAO(sessionFactory);
-
-		Query<Trainee> query = Mockito.mock(Query.class);
 		String result = traineeDAO.deleteByUsername("Azimjon.Alijonov");
 		assertNotNull(result);
 
